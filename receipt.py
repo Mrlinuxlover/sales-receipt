@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 import tkinter as tk
 from tkinter import ttk,Menu,messagebox
 from tkinter.filedialog import asksaveasfile,askopenfilename
@@ -6,6 +8,7 @@ import datetime
 
 root = tk.Tk()
 root.geometry("680x510")
+root.title("Sales Receipt")
 root.resizable(False,False)
 
 time_entry = tk.Entry(root, state="disabled", justify="center")
@@ -40,10 +43,27 @@ def get_total():
     for child in table.get_children():
         total += float(table.item(child)["values"][4])
     return total
-total_label = tk.Label(root, text="Total: $0")
+total_label = tk.Label(root, text="Total: 0")
 def update_total():
     total_label.config(text=f"Total: {get_total():.2f}")
 total_label.grid(row=2, column=3)
+
+def exist_check(item_name,amount,price,discount,total):
+    done=0
+    for child in table.get_children():
+        if item_name == str(table.item(child)["values"][0]):
+            if float(price_entry.get()) == float(table.item(child)["values"][2]) and discount == int(table.item(child)["values"][3]):
+                amount = amount+float(table.item(child)["values"][1])
+                total = (amount*price)-(amount*price*discount/100)
+                table.item(child, values=(item_name, amount, price, discount, total))
+                done=1
+            else:
+                done=0
+        else:
+            done=0
+    if done==0:
+        table.insert("", tk.END, values=(item_name, amount, price, discount, total))
+
 
 def add_item():
     item_name = item_entry.get()
@@ -59,7 +79,7 @@ def add_item():
     else:
         discount=0
     total = (amount*price)-(amount*price*discount/100)
-    table.insert("", tk.END, values=(item_name, amount, price, discount, total))
+    exist_check(item_name,amount,price,discount,total)
     item_entry.delete(0, tk.END)
     amount_entry.delete(0, tk.END)
     price_entry.delete(0, tk.END)
@@ -133,6 +153,12 @@ def get_save():
 
 def get_open():
     file = open(askopenfilename(initialfile = 'print.txt', defaultextension=".txt",filetypes=[("All Files","*.*"),("Text Documents","*.txt")]), mode='r')
+    item_entry.delete(0, tk.END)
+    amount_entry.delete(0, tk.END)
+    price_entry.delete(0, tk.END)
+    discount_entry.delete(0, tk.END)
+    for item in table.get_children():
+        table.delete(item)
     time_entry.configure(state="normal")
     time_entry.delete(0, tk.END)
     time_entry.insert(0,file.readline().replace('\n',''))
@@ -164,7 +190,6 @@ def create_new():
         get_time()
 
 def get_print():
-    import os
     box_stat = tk.messagebox.askquestion(title="Warning", message='Do you want to print this receipt?')
     if box_stat == 'yes':
         from prettytable import PrettyTable
@@ -187,9 +212,17 @@ def get_print():
             printers = conn.getPrinters()
             printer_name = list(printers.keys())[0]
             subprocess.call(["lpr", f'PrintTemplate{print_time}.txt'])
-#           os.remove(f'PrintTemplate{print_time}.txt')
+        import os
+        os.remove(f'PrintTemplate{print_time}.txt')
 
-
+def about_page():
+    import webbrowser
+    message = "This program was created by Mrlinuxlover using Python and the Tkinter library.\n\nThank you for using this program!\n\nPlease check out the GitHub repository for the latest updates and to report issues:\n\n"
+    link = "https://github.com/mrlinuxlover/sales-receipt"
+    result = messagebox.askquestion("About", message+"Would you like to go to the GitHub repository?", icon="info")
+    if result == "yes":
+        webbrowser.open_new(link)
+    
 #set the menu bar
 menubar = Menu(root)
 filemenu = Menu(menubar, tearoff=0)
@@ -210,6 +243,7 @@ menubar.add_cascade(label="File", menu=filemenu)
 
 editmenu = Menu(menubar, tearoff=0)
 editmenu.add_command(label="Clear all", command=clear_all)
+root.bind('<Control-p>', lambda e: clear_all())
 editmenu.add_command(label="Update time", command=get_time)
 root.bind('<Control-r>', lambda e: get_time())
 editmenu.add_command(label="Delete", command=delete_item)
@@ -217,8 +251,7 @@ root.bind('<Delete>', lambda e: delete_item())
 menubar.add_cascade(label="Edit", menu=editmenu)
 
 helpmenu = Menu(menubar, tearoff=0)
-helpmenu.add_command(label="Help")
-helpmenu.add_command(label="About...")
+helpmenu.add_command(label="About...", command=about_page)
 menubar.add_cascade(label="Help", menu=helpmenu)
 
 root.config(menu=menubar)
@@ -226,8 +259,3 @@ root.config(menu=menubar)
 
 # Start the Tkinter event loop
 root.mainloop()
-
-
-
-
-
