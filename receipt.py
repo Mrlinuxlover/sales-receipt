@@ -57,6 +57,7 @@ def exist_check(item_name,amount,price,discount,total):
                 total = (amount*price)-(amount*price*discount/100)
                 table.item(child, values=(item_name, amount, price, discount, total))
                 done=1
+                break
             else:
                 done=0
         else:
@@ -243,7 +244,7 @@ menubar.add_cascade(label="File", menu=filemenu)
 
 editmenu = Menu(menubar, tearoff=0)
 editmenu.add_command(label="Clear all", command=clear_all)
-root.bind('<Control-p>', lambda e: clear_all())
+root.bind('<Control-l>', lambda e: clear_all())
 editmenu.add_command(label="Update time", command=get_time)
 root.bind('<Control-r>', lambda e: get_time())
 editmenu.add_command(label="Delete", command=delete_item)
