@@ -1,0 +1,4 @@
+tkinter
+pyautogui
+prettytable
+cups
