@@ -218,8 +218,8 @@ def get_print():
 
 def about_page():
     import webbrowser
-    message = "This program was created by Mrlinuxlover using Python and the Tkinter library.\n\nThank you for using this program!\n\nPlease check out the GitHub repository for the latest updates and to report issues:\n\n"
-    link = "https://github.com/mrlinuxlover/sales-receipt"
+    message = "This program was created by Mobin Babaee using Python and the Tkinter library.\n\nThank you for using this program!\n\nPlease check out the GitHub repository for the latest updates and to report issues:\n\n"
+    link = "https://github.com/mobinbabaee/sales-receipt"
     result = messagebox.askquestion("About", message+"Would you like to go to the GitHub repository?", icon="info")
     if result == "yes":
         webbrowser.open_new(link)
